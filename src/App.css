@@ -34,3 +34,32 @@ html {
     transform: rotate(360deg);
   }
 }
+
+
+.container {
+  padding: 1em;
+  width: 100%;
+}
+
+.title {
+  text-align: center;
+  padding: 0.25em;
+}
+
+.dataContent {
+  display: flex;
+  justify-content: center;
+  border-radius: 0.25em;
+  background-color: #cecece;
+  margin-bottom: 1rem;
+}
+
+.reset-button {
+  margin: auto !important;
+  display: block !important;
+}
+
+.demoform {
+  margin: auto;
+  padding: 1rem;
+}

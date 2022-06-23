@@ -1,119 +1,89 @@
-import { Fragment, useState, useMemo } from 'react';
-import { JsonForms } from '@jsonforms/react';
+import React, {Fragment} from 'react';
+import {JsonForms} from '@jsonforms/react';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import logo from './logo.svg';
 import './App.css';
-import schema from './schema.json';
-import uischema from './uischema.json';
-import {
-  materialCells,
-  materialRenderers,
-} from '@jsonforms/material-renderers';
-import RatingControl from './RatingControl';
-import ratingControlTester from './ratingControlTester';
-import { makeStyles } from '@mui/styles';
+import {materialRenderers,} from '@jsonforms/material-renderers';
 
-const useStyles = makeStyles({
-  container: {
-    padding: '1em',
-    width: '100%',
-  },
-  title: {
-    textAlign: 'center',
-    padding: '0.25em',
-  },
-  dataContent: {
-    display: 'flex',
-    justifyContent: 'center',
-    borderRadius: '0.25em',
-    backgroundColor: '#cecece',
-    marginBottom: '1rem',
-  },
-  resetButton: {
-    margin: 'auto !important',
-    display: 'block !important',
-  },
-  demoform: {
-    margin: 'auto',
-    padding: '1rem',
-  },
-});
+class App extends React.Component<{}, { schema: Object, uiSchema: Object, data: Object }> {
+    renderers = [
+        ...materialRenderers,
+    ];
 
-const initialData = {
-  name: 'Send email to Adrian',
-  description: 'Confirm if you have passed the subject\nHereby ...',
-  done: true,
-  recurrence: 'Daily',
-  rating: 3,
-};
+    constructor(props: any) {
+        super(props);
+        this.state = {schema: {}, uiSchema: {}, data: {}};
+        // this.componentDidMount = this.componentDidMount.bind(this);
+    }
 
-const renderers = [
-  ...materialRenderers,
-  //register custom renderers
-  { tester: ratingControlTester, renderer: RatingControl },
-];
+    setData = (data: any) => {
+        console.log('setData', JSON.stringify(data))
+    };
 
-const App = () => {
-  const classes = useStyles();
-  const [data, setData] = useState<any>(initialData);
-  const stringifiedData = useMemo(() => JSON.stringify(data, null, 2), [data]);
+    clearData = () => {
+        this.setState({schema: {}, uiSchema: {}, data: {}});
+    };
 
-  const clearData = () => {
-    setData({});
-  };
+    componentDidMount() {
+        fetch("http://127.0.0.1:8000/forms/questionnaires/",
+            {mode: 'cors'})
+            .then((res) => res.json())
+            .then((json) => {
+                this.setState({schema: json.results[0].as_json_schema, uiSchema: {}, data: {}});
+            })
+    }
 
-  return (
-    <Fragment>
-      <div className='App'>
-        <header className='App-header'>
-          <img src={logo} className='App-logo' alt='logo' />
-          <h1 className='App-title'>Welcome to JSON Forms with React</h1>
-          <p className='App-intro'>More Forms. Less Code.</p>
-        </header>
-      </div>
+    render() {
+        return (
+            <Fragment>
+                <div className='App'>
+                    <header className='App-header'>
+                        <img src={logo} className='App-logo' alt='logo'/>
+                        <h1 className='App-title'>Welcome to JSON Forms with React</h1>
+                        <p className='App-intro'>More Forms. Less Code.</p>
+                    </header>
+                </div>
 
-      <Grid
-        container
-        justifyContent={'center'}
-        spacing={1}
-        className={classes.container}
-      >
-        <Grid item sm={6}>
-          <Typography variant={'h4'} className={classes.title}>
-            Bound data
-          </Typography>
-          <div className={classes.dataContent}>
-            <pre id='boundData'>{stringifiedData}</pre>
-          </div>
-          <Button
-            className={classes.resetButton}
-            onClick={clearData}
-            color='primary'
-            variant='contained'
-          >
-            Clear data
-          </Button>
-        </Grid>
-        <Grid item sm={6}>
-          <Typography variant={'h4'} className={classes.title}>
-            Rendered form
-          </Typography>
-          <div className={classes.demoform}>
-            <JsonForms
-              schema={schema}
-              uischema={uischema}
-              data={data}
-              renderers={renderers}
-              cells={materialCells}
-              onChange={({ errors, data }) => setData(data)}
-            />
-          </div>
-        </Grid>
-      </Grid>
-    </Fragment>
-  );
-};
+                <Grid
+                    container
+                    justifyContent={'center'}
+                    spacing={1}
+                    className='container'
+                >
+                    <Grid item sm={6}>
+                        <Typography variant={'h4'} className='title'>
+                            Bound data
+                        </Typography>
+                        <div className='dataContent'>
+                            <pre id='boundData'>Not implemented</pre>
+                        </div>
+                        <Button
+                            className='resetButton'
+                            onClick={this.clearData}
+                            color='primary'
+                            variant='contained'
+                        >
+                            Clear data
+                        </Button>
+                    </Grid>
+                    <Grid item sm={6}>
+                        <Typography variant={'h4'} className='title'>
+                            Rendered form
+                        </Typography>
+                        <div className='demoform'>
+                            <JsonForms
+                                schema={this.state.schema}
+                                data={this.state.data}
+                                renderers={this.renderers}
+                            />
+                        </div>
+                    </Grid>
+                </Grid>
+            </Fragment>
+        );
+    }
+}
 
 export default App;
